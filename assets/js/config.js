@@ -16,6 +16,7 @@ window.CONFIG = {
   garantiaDias: 7,                             // dias de garantia; 0 esconde o bloco
   whatsappSuporte: '5511914608952',            // número de suporte só com dígitos, ex.: 5575999999999; '' esconde
   instagram: 'devocionalfilhodetantaslagrimas',
+  tiktokPixelId: '',                           // ID do Pixel do TikTok (Gerenciador de Anúncios > Ativos > Eventos > Web), ex.: 'D0ABC12DEF3GH4'; '' desliga
   pixelId: '1072740581471884',                 // ID do Pixel da Meta; '' desliga
   coletor: '',                                 // endereço que grava os eventos no nosso banco (webhook do n8n); '' desliga
   depoimentos: [],                             // prints REAIS das mães, ex.: ['assets/img/dep1.jpg']; vazio esconde

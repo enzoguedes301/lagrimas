@@ -83,7 +83,7 @@ app.post('/api/pix/criar', limitar, async (req, res)=>{
       utm: {}, sessao: String(b.sessao || '').slice(0,64), origem: String(b.origem || '').slice(0,500),
       ip: req.ip, criadoEm: new Date().toISOString(), pagoEm: null, ultimaConsulta: 0
     };
-    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'].forEach(k=>{ if(b[k]) pedido.utm[k] = String(b[k]).slice(0,200); });
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','ttclid'].forEach(k=>{ if(b[k]) pedido.utm[k] = String(b[k]).slice(0,200); });
 
     const cob = await provedor.criarCobranca(pedido);
     Object.assign(pedido, { provedorId: cob.provedorId, copiaECola: cob.copiaECola, qrCodeBase64: cob.qrCodeBase64 || '', expiraEm: cob.expiraEm || new Date(Date.now() + EXPIRA_MIN*60000).toISOString(), linkPagamento: cob.linkPagamento || '' });

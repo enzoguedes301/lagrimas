@@ -208,7 +208,7 @@ const prog = document.getElementById('progresso');
    (é de lá que o painel tira o funil tela a tela e onde cada mãe saiu). */
 const VALOR = parseFloat(String(CONFIG.preco).replace(/[^\d,]/g,'').replace(',', '.')) || 0;
 const UTM = (()=>{ const q = new URLSearchParams(location.search), o = {};
-  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'].forEach(k=>{ if(q.get(k)) o[k] = q.get(k).slice(0,200); });
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','ttclid'].forEach(k=>{ if(q.get(k)) o[k] = q.get(k).slice(0,200); });
   return o; })();
 const SESSAO = (()=>{ const novo = Date.now().toString(36) + Math.random().toString(36).slice(2,10);
   try{ let s = sessionStorage.getItem('quiz_sessao'); if(!s){ s = novo; sessionStorage.setItem('quiz_sessao', s); } return s; }catch(e){ return novo; } })();
@@ -216,8 +216,22 @@ const T0 = Date.now();
 let telaDesde = Date.now(), etapaMax = 0, saiuPor = '';
 const pad2 = n => String(n).padStart(2, '0');
 
-function px(evento, dados){ try{ if(window.fbq) fbq('track', evento, dados||{}); }catch(e){} }
-function pxc(evento, dados){ try{ if(window.fbq) fbq('trackCustom', evento, dados||{}); }catch(e){} }
+/* Nomes dos eventos padrão da Meta e o equivalente no TikTok */
+const TT_EVENTO = { ViewContent:'ViewContent', InitiateCheckout:'InitiateCheckout', AddPaymentInfo:'AddPaymentInfo', Purchase:'CompletePayment', Contact:'Contact' };
+function px(evento, dados){
+  try{ if(window.fbq) fbq('track', evento, dados||{}); }catch(e){}
+  try{ if(window.ttq && TT_EVENTO[evento]) ttq.track(TT_EVENTO[evento], dadosTikTok(dados)); }catch(e){}
+}
+function pxc(evento, dados){
+  try{ if(window.fbq) fbq('trackCustom', evento, dados||{}); }catch(e){}
+  try{ if(window.ttq) ttq.track(evento, dados||{}); }catch(e){}
+}
+/* O TikTok quer contents[] com content_id; o resto vai igual */
+function dadosTikTok(d){
+  d = Object.assign({}, d||{});
+  if(d.value != null){ d.contents = [{ content_id:'devocional-21-dias', content_type:'product', content_name:CONFIG.produto, price:d.value, quantity:1 }]; d.content_type = 'product'; }
+  return d;
+}
 function coletar(evento, dados){
   if(!CONFIG.coletor) return;
   const corpo = JSON.stringify(Object.assign({ sessao:SESSAO, evento, etapa:atual + 1, tela:(TELAS[atual]||{}).id,
@@ -321,6 +335,11 @@ voltar.addEventListener('click', ()=>{
   if(window.Checkout && window.Checkout.aberto()){ rastrear('Quiz_CheckoutVoltou', {}); mostrar(atual, false); return; }
   if(atual > 0){ rastrear('Quiz_Voltou', { de:TELAS[atual].id }); mostrar(atual - 1, false); }
 });
+
+/* Pixel do TikTok (só carrega quando CONFIG.tiktokPixelId estiver preenchido). */
+if(CONFIG.tiktokPixelId){
+  !function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};ttq.load(CONFIG.tiktokPixelId);ttq.page();}(window,document,'ttq');
+}
 
 /* Pixel da Meta (só carrega quando CONFIG.pixelId estiver preenchido). */
 if(CONFIG.pixelId){

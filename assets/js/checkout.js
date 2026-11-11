@@ -95,6 +95,8 @@ async function gerarPix(dados){
     if(!r.ok || !j.ok) throw new Error(j.erro || 'Não foi possível gerar o Pix agora.');
     estado.pedido = Object.assign({ cliente:dados }, j.pedido);
     guardarPendente(estado.pedido);
+    // TikTok: e-mail e telefone (o próprio SDK faz o hash) para casar a compra com quem clicou no anúncio
+    try{ if(window.ttq) ttq.identify({ email:dados.email, phone_number:'+55' + dados.whatsapp, external_id:j.pedido.id }); }catch(e){}
     window.Quiz.rastrear('Quiz_PixGerado', { value:window.Quiz.VALOR, currency:'BRL', pedido:j.pedido.id }, 'AddPaymentInfo');
     telaPix();
   }catch(e){
