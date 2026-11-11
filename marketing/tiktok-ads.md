@@ -13,9 +13,14 @@ O site já está preparado. Falta só o ID:
 2. Copie o ID (começa com letra, ex.: `D0ABC12DEF3GH4`) e cole em `tiktokPixelId` no arquivo `assets/js/config.js`.
 3. Suba a mudança (git push). Teste com a extensão TikTok Pixel Helper no Chrome: na oferta deve aparecer ViewContent; ao clicar em comprar, InitiateCheckout; ao gerar o Pix, AddPaymentInfo; ao pagar, CompletePayment.
 
-Eventos que o site envia ao TikTok: ViewContent (chegou na oferta), InitiateCheckout (clicou em comprar),
+Eventos que o site envia ao TikTok pelo Pixel: ViewContent (chegou na oferta), InitiateCheckout (clicou em comprar),
 AddPaymentInfo (Pix gerado), CompletePayment (Pix pago, com valor em BRL). O e-mail e o telefone do checkout
 são enviados com hash (Advanced Matching) para o TikTok casar a compra com quem clicou. O `ttclid` do clique é guardado no pedido.
+
+Events API (servidor): já implementada em `server/tiktok.js`. O servidor envia AddPaymentInfo e PlaceAnOrder ao gerar o Pix e
+CompletePayment quando o Pix é confirmado, mesmo com o navegador da mãe fechado. Pixel e servidor usam o mesmo `event_id`,
+então o TikTok não conta duas vezes. Na Vercel, cadastre as variáveis `TIKTOK_PIXEL_ID` e `TIKTOK_ACCESS_TOKEN`.
+Para conferir, use a aba "Testar eventos" do pixel: coloque o código em `TIKTOK_TEST_EVENT_CODE`, faça um Pix de teste e apague o código depois.
 
 ## 2. Estrutura da campanha
 

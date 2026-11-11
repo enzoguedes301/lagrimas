@@ -54,6 +54,8 @@ function telaDados(prefill){
   window.scrollTo({top:0});
 }
 
+/* Cookie do Pixel do TikTok (_ttp): vai para o servidor para a Events API casar a compra com o clique */
+function cookie(nome){ try{ const m = document.cookie.match(new RegExp('(?:^|; )' + nome + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : ''; }catch(e){ return ''; } }
 /* A PixGate pede a plataforma de quem paga (android, ios ou web), detectada no navegador */
 function detectarDevice(){
   const ua = navigator.userAgent.toLowerCase();
@@ -90,14 +92,15 @@ async function gerarPix(dados){
   btn.disabled = true; btn.textContent = 'Gerando o seu Pix...'; mostrarErro('');
   try{
     const r = await fetch(api('/api/pix/criar'), { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(Object.assign({ nome:dados.nome, email:dados.email, whatsapp:'55' + dados.whatsapp, cpf:dados.cpf || undefined, device:detectarDevice(), sessao:window.Quiz.SESSAO, origem:location.href.slice(0,500) }, window.Quiz.UTM)) });
+      body: JSON.stringify(Object.assign({ nome:dados.nome, email:dados.email, whatsapp:'55' + dados.whatsapp, cpf:dados.cpf || undefined, device:detectarDevice(), sessao:window.Quiz.SESSAO, origem:location.href.slice(0,500), ttp:cookie('_ttp') }, window.Quiz.UTM)) });
     const j = await r.json().catch(()=>({}));
     if(!r.ok || !j.ok) throw new Error(j.erro || 'Não foi possível gerar o Pix agora.');
     estado.pedido = Object.assign({ cliente:dados }, j.pedido);
     guardarPendente(estado.pedido);
     // TikTok: e-mail e telefone (o próprio SDK faz o hash) para casar a compra com quem clicou no anúncio
     try{ if(window.ttq) ttq.identify({ email:dados.email, phone_number:'+55' + dados.whatsapp, external_id:j.pedido.id }); }catch(e){}
-    window.Quiz.rastrear('Quiz_PixGerado', { value:window.Quiz.VALOR, currency:'BRL', pedido:j.pedido.id }, 'AddPaymentInfo');
+    // event_id igual ao do servidor ("<pedido>:<evento>") para o TikTok descartar a duplicata
+    window.Quiz.rastrear('Quiz_PixGerado', { value:window.Quiz.VALOR, currency:'BRL', pedido:j.pedido.id, event_id:j.pedido.id + ':AddPaymentInfo' }, 'AddPaymentInfo');
     telaPix();
   }catch(e){
     btn.disabled = false; btn.textContent = 'Tentar de novo';
@@ -195,7 +198,7 @@ function pararTimers(){ clearInterval(estado.timerStatus); clearInterval(estado.
 function pago(info){
   const p = estado.pedido;
   guardarPendente(null);
-  window.Quiz.rastrear('Quiz_PixPago', { value:window.Quiz.VALOR, currency:'BRL', content_name:CONFIG.produto, content_type:'product', pedido:p.id }, 'Purchase');
+  window.Quiz.rastrear('Quiz_PixPago', { value:window.Quiz.VALOR, currency:'BRL', content_name:CONFIG.produto, content_type:'product', pedido:p.id, event_id:p.id + ':CompletePayment' }, 'Purchase');
   const destino = CONFIG.paginaObrigado ? CONFIG.paginaObrigado + '?pedido=' + encodeURIComponent(p.id) : '';
   window.Quiz.tela.innerHTML = `
   <section class="tela checkout">

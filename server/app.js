@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const express = require('express');
 const store = require('./store');
 const provedor = require('./providers');
+const tiktok = require('./tiktok');
 
 const app = express();
 const VALOR = parseFloat(process.env.PIX_VALOR || '37.00');
@@ -81,7 +82,8 @@ app.post('/api/pix/criar', limitar, async (req, res)=>{
       postback: /^https:\/\//.test(publica) ? publica + '/api/pix/webhook/' + provedor.nome : '',
       cliente: { nome, email, whatsapp, cpf: cpf || undefined },
       utm: {}, sessao: String(b.sessao || '').slice(0,64), origem: String(b.origem || '').slice(0,500),
-      ip: req.ip, criadoEm: new Date().toISOString(), pagoEm: null, ultimaConsulta: 0
+      ip: req.ip, userAgent: String(req.get('user-agent') || '').slice(0,300), ttp: String(b.ttp || '').slice(0,100) || undefined,
+      criadoEm: new Date().toISOString(), pagoEm: null, ultimaConsulta: 0
     };
     ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','ttclid'].forEach(k=>{ if(b[k]) pedido.utm[k] = String(b[k]).slice(0,200); });
 
@@ -90,6 +92,8 @@ app.post('/api/pix/criar', limitar, async (req, res)=>{
     await store.gravar(pedido);
     console.log(`[pix] pedido ${pedido.id} criado (${provedor.nome} ${pedido.provedorId}) ${email}`);
     res.json({ ok:true, pedido: publico(pedido) });
+    // Pix gerado = dados de pagamento informados + pedido feito (o pagamento vem depois)
+    await tiktok.enviar(['AddPaymentInfo', 'PlaceAnOrder'], pedido);
   }catch(e){
     console.error('[pix] erro ao criar:', e.message);
     res.status(502).json({ ok:false, erro:'Não conseguimos gerar o Pix agora. Tente de novo em instantes.' });
@@ -151,7 +155,7 @@ app.get('/api/pedidos', async (req, res)=>{
 });
 
 /* ---------- saúde ---------- */
-app.get('/api/saude', (req, res)=> res.json({ ok:true, provedor: provedor.nome, armazenamento: store.tipo, valor: VALOR, urlPublica: urlPublica(req) }));
+app.get('/api/saude', (req, res)=> res.json({ ok:true, provedor: provedor.nome, armazenamento: store.tipo, valor: VALOR, urlPublica: urlPublica(req), tiktokEventsApi: tiktok.ligado() }));
 
 async function atualizarStatus(p, novo, via){
   if(!novo || novo === p.status) return;
@@ -160,7 +164,10 @@ async function atualizarStatus(p, novo, via){
   if(novo === 'pago' && !p.pagoEm) p.pagoEm = new Date().toISOString();
   await store.gravar(p);
   console.log(`[pix] pedido ${p.id} -> ${novo} (${via})`);
-  if(novo === 'pago' && !eraPago) await entregar(p);
+  if(novo === 'pago' && !eraPago){
+    await tiktok.enviar('CompletePayment', p);
+    await entregar(p);
+  }
 }
 
 /* Entrega: avisa o n8n (ou qualquer webhook) que o Pix caiu. É lá que sai o e-mail e o WhatsApp com o acesso. */

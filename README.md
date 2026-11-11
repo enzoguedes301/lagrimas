@@ -46,6 +46,9 @@ server/
    | `ENTREGA_WEBHOOK_URL` | webhook do n8n que envia o acesso (opcional) |
    | `ENTREGA_TOKEN` | segredo enviado ao n8n no cabeçalho `X-Entrega-Token` (opcional) |
    | `ADMIN_TOKEN` | segredo para `GET /api/pedidos?token=` |
+   | `TIKTOK_PIXEL_ID` | ID do pixel do TikTok (o mesmo de `tiktokPixelId` em config.js) |
+   | `TIKTOK_ACCESS_TOKEN` | token da Events API do TikTok (Eventos > pixel > Configurações > Gerar token) |
+   | `TIKTOK_TEST_EVENT_CODE` | só durante o teste de eventos; depois apague |
 
 4. Faça o deploy e abra `https://seu-dominio/api/saude`: deve mostrar `"provedor":"pixgate"` e `"armazenamento":"redis"`.
 5. O postback da PixGate vai para `https://seu-dominio/api/pix/webhook/pixgate`. A URL segue junto em cada cobrança,
@@ -109,6 +112,11 @@ Lista de pedidos: `GET /api/pedidos?token=<ADMIN_TOKEN>`.
 
 ## Rastreamento
 
-Os eventos do quiz vão para o Pixel da Meta (`pixelId` em config.js) e, se `coletor` estiver preenchido, para o
-seu webhook. Eventos novos do checkout: `Quiz_CheckoutAbriu`, `Quiz_PixGerado` (AddPaymentInfo), `Quiz_PixCopiou`,
-`Quiz_PixPago` (Purchase), `Quiz_PixErro`.
+Os pixels do TikTok (`tiktokPixelId`) e da Meta (`pixelId`) são carregados no `<head>` de todas as páginas por
+`assets/js/pixels.js`. Os eventos do quiz vão para os dois e, se `coletor` estiver preenchido, para o seu webhook.
+Eventos do checkout: `Quiz_CheckoutAbriu` (InitiateCheckout), `Quiz_PixGerado` (AddPaymentInfo), `Quiz_PixCopiou`,
+`Quiz_PixPago` (Purchase na Meta, CompletePayment no TikTok), `Quiz_PixErro`.
+
+TikTok Events API (`server/tiktok.js`): o servidor envia AddPaymentInfo e PlaceAnOrder ao gerar o Pix e CompletePayment
+quando o pagamento é confirmado, com e-mail e telefone em hash, IP, user agent, `ttclid` e cookie `_ttp`. O `event_id`
+é o mesmo do Pixel (`<pedido>:<evento>`), então o TikTok descarta a duplicata. Liga com `TIKTOK_PIXEL_ID` e `TIKTOK_ACCESS_TOKEN`.

@@ -218,9 +218,13 @@ const pad2 = n => String(n).padStart(2, '0');
 
 /* Nomes dos eventos padrão da Meta e o equivalente no TikTok */
 const TT_EVENTO = { ViewContent:'ViewContent', InitiateCheckout:'InitiateCheckout', AddPaymentInfo:'AddPaymentInfo', Purchase:'CompletePayment', Contact:'Contact' };
+/* dados.event_id (quando existe) vai separado: serve para o TikTok e a Meta não contarem duas vezes
+   o mesmo evento quando o servidor também envia (Events API / Conversions API). */
 function px(evento, dados){
-  try{ if(window.fbq) fbq('track', evento, dados||{}); }catch(e){}
-  try{ if(window.ttq && TT_EVENTO[evento]) ttq.track(TT_EVENTO[evento], dadosTikTok(dados)); }catch(e){}
+  dados = Object.assign({}, dados||{});
+  const eid = dados.event_id; delete dados.event_id;
+  try{ if(window.fbq) fbq('track', evento, dados, eid ? { eventID:eid } : undefined); }catch(e){}
+  try{ if(window.ttq && TT_EVENTO[evento]) ttq.track(TT_EVENTO[evento], dadosTikTok(dados), eid ? { event_id:eid } : undefined); }catch(e){}
 }
 function pxc(evento, dados){
   try{ if(window.fbq) fbq('trackCustom', evento, dados||{}); }catch(e){}
