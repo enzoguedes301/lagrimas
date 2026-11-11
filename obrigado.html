@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pagamento confirmado</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <main id="tela">
+    <section class="tela checkout" style="padding-top:28px">
+      <div class="sucesso">
+        <div class="check">✓</div>
+        <h1>Seu devocional está a caminho 🙏</h1>
+        <p class="sub">Em alguns minutos você recebe o acesso ao <b class="ok">O Filho de Tantas Lágrimas</b> no seu e-mail e no seu WhatsApp.</p>
+        <img class="capa" src="assets/img/capa.jpg" alt="Capa do devocional O Filho de Tantas Lágrimas" width="642" height="909">
+        <div class="passos-pix">
+          <h3>Como começar hoje</h3>
+          <ol>
+            <li>Abra o seu WhatsApp ou o seu e-mail e procure a mensagem com o acesso.</li>
+            <li>Escolha um horário de manhã, 5 minutos só seus.</li>
+            <li>Comece pelo <b>Dia 1: a entrega do seu filho a Deus.</b></li>
+          </ol>
+        </div>
+        <p class="nota" id="suporte"></p>
+        <p class="nota" id="pedido"></p>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="assets/js/config.js"></script>
+<script>
+(function(){
+  var C = window.CONFIG;
+  if(C.whatsappSuporte) document.getElementById('suporte').innerHTML = 'Não recebeu em 10 minutos? Fale com a gente no WhatsApp: <b>+' + C.whatsappSuporte + '</b>';
+  var id = new URLSearchParams(location.search).get('pedido');
+  if(id) document.getElementById('pedido').textContent = 'Número do seu pedido: ' + id;
+  if(C.pixelId){
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', C.pixelId); fbq('track', 'PageView');
+  }
+})();
+</script>
+</body>
+</html>

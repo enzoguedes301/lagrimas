@@ -1,0 +1,172 @@
+/* Layout: uma tela por vez, coluna estreita como um quiz de celular, um botão grande por tela.
+   Público 50+: uma fonte só (Inter), tudo em negrito, letra grande, texto quase preto, fundo branco. */
+:root{
+  --papel:#ffffff;
+  --cartao:#ffffff;
+  --tinta:#141414;      /* texto: quase preto, nada de cinza claro */
+  --tinta-suave:#3d3d3d;
+  --vinho:#c0262d;      /* destaque vermelho (dor) */
+  --verde:#13a35a;      /* destaque verde e botão */
+  --verde-escuro:#0c7a42;
+  --ouro:#b8893d;
+  --linha:#e6e6e6;
+  --rosa:#fdeced;
+  --verde-claro:#e8f6ee;
+  --fonte:"Inter", "Segoe UI", Roboto, Arial, sans-serif;
+  --vh:1vh;              /* 1% da altura visível da tela; vira dvh onde o navegador suporta */
+  color-scheme:light;
+}
+@supports (height:1dvh){:root{--vh:1dvh}}
+*{box-sizing:border-box}
+html,body{background:var(--papel);color:var(--tinta);margin:0}
+body{font-family:var(--fonte);font-weight:600;font-size:19px;line-height:1.4;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+/* Responsivo: cada tela do quiz cabe inteira na altura do celular (título, imagem, texto e botão sem rolar).
+   As letras e os espaços encolhem com a altura da tela (clamp + vh) e a imagem ocupa só o espaço que sobra. */
+.wrap{max-width:480px;margin:0 auto;min-height:calc(var(--vh)*100);display:flex;flex-direction:column;
+  padding-top:max(8px, env(safe-area-inset-top, 0px));padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+#tela{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.topo{display:flex;align-items:center;gap:12px;min-height:30px;flex:none}
+.voltar{background:none;border:0;color:var(--tinta-suave);font:700 16px var(--fonte);padding:4px 2px;cursor:pointer}
+.voltar[hidden]{display:none}
+.barra{flex:1;height:9px;background:var(--linha);border-radius:99px;overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:var(--verde);border-radius:99px;transition:width .35s ease}
+.tela{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:clamp(7px, calc(var(--vh)*1.5), 16px);padding-top:clamp(6px, calc(var(--vh)*1.2), 14px);animation:entra .35s ease both}
+.tela.oferta{flex:none}
+@keyframes entra{from{opacity:.001;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tela{animation:none}.barra i{transition:none}}
+.selo{font:900 clamp(12px, calc(var(--vh)*1.9), 15px) var(--fonte);letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--verde);padding:3px 11px;border-radius:6px;flex:none}
+h1,h2{font-family:var(--fonte);font-weight:900;color:var(--tinta);margin:0;text-wrap:balance;line-height:1.15;letter-spacing:-.01em;flex:none}
+h1{font-size:clamp(21px, calc(var(--vh)*3.5), 29px)}
+h2{font-size:clamp(19.5px, calc(var(--vh)*3.15), 26px)}
+.dest{color:var(--verde);text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
+.dor{color:var(--vinho)}
+.sub{font-size:clamp(16px, calc(var(--vh)*2.4), 20px);font-weight:700;margin:0;color:var(--tinta);text-wrap:pretty;flex:none}
+.sub b{color:var(--vinho);font-weight:900}
+.sub b.ok{color:var(--verde)}
+.nota{font-size:clamp(14px, calc(var(--vh)*2), 17px);font-weight:700;color:var(--tinta-suave);margin:0;flex:none}
+.capa{width:min(240px,66%);height:auto;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+/* Imagem de apoio: ocupa o espaço que sobra na tela, sem cortar a foto (mantém o 3:4) */
+.media{flex:1 1 0;min-height:130px;width:100%;position:relative}
+.media .foto{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);height:100%;width:auto;max-width:100%;aspect-ratio:3/4;object-fit:cover}
+.media.lista-img{min-height:220px}
+/* Celular baixo: na tela "Você vai receber" a lista é o que importa; a foto do produto (já vista nos 3 passos) sai */
+@media (max-height:700px){.tela-recebe .media{display:none}}
+.media.lista-img .foto{aspect-ratio:auto;object-fit:contain}
+.foto{border-radius:16px;display:block;object-fit:cover;background:#f2f2f2}
+/* Na oferta (página que rola) as imagens ficam em largura fixa */
+.oferta .foto{width:min(100%, 380px);height:auto;aspect-ratio:3/4;margin-inline:auto}
+.r34{aspect-ratio:3/4}
+/* Botão da tela: fica no rodapé; se a tela for mais alta que o celular, ele gruda embaixo e continua visível */
+.cta{position:sticky;bottom:0;width:100%;flex:none;margin-top:auto;padding:clamp(8px, calc(var(--vh)*1.4), 14px) 0 max(18px, calc(env(safe-area-inset-bottom, 0px) + 10px));
+  background:linear-gradient(to bottom, rgba(255,255,255,0), #fff 30%);z-index:2}
+.foto.vazia{border:3px dashed #b9b9b9;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:18px;color:#555;font-size:16px;line-height:1.35}
+.foto.vazia b{font-size:19px;color:#222}
+.passo{font:900 clamp(13px, calc(var(--vh)*2.1), 17px) var(--fonte);letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--verde);padding:4px 15px;border-radius:6px;flex:none}
+.lista.compacta{gap:6px;flex:none}
+.lista.compacta li{border:0;background:#f3f6f4;padding:clamp(5px, calc(var(--vh)*0.9), 10px) 12px;font-size:clamp(14.5px, calc(var(--vh)*2.15), 18px);border-radius:10px;align-items:center}
+.lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;width:100%;text-align:left}
+.lista li{background:var(--cartao);border:2px solid var(--linha);border-radius:12px;padding:12px 14px;font-size:19px;font-weight:700;display:flex;gap:10px;align-items:flex-start}
+.lista li span{flex:none}
+.lista.dores li{background:var(--rosa);border-color:#f6c9cc}
+.lista.desejos li{background:var(--verde-claro);border-color:#bfe6cf}
+.lista b.dor{color:var(--vinho);font-weight:900}
+.lista b.ok{color:var(--verde);font-weight:900}
+.boasvindas{width:100%;background:var(--verde);color:#fff;font-weight:900;font-size:clamp(15px, calc(var(--vh)*2.3), 20px);line-height:1.28;text-transform:uppercase;padding:clamp(10px, calc(var(--vh)*1.7), 16px) 16px;border-radius:16px;text-align:left;flex:none}
+.perfil{width:100%;height:auto;display:block;border-radius:14px;border:2px solid var(--linha);flex:none}
+.faixa{font:900 16px var(--fonte);text-transform:uppercase;color:#fff;background:var(--verde);padding:4px 12px;border-radius:6px}
+/* Botões: degradê verde com relevo, brilho que atravessa, setas que andam para a direita e pulso com anel.
+   Quatro sinais juntos para a mãe 50+ achar o botão na hora no celular. */
+.btn{position:relative;overflow:hidden;width:100%;border:0;border-radius:16px;
+  background:linear-gradient(180deg,#3ee08a 0%,#16b062 48%,#0c8a48 100%);
+  color:#fff;font:900 clamp(16.5px, calc(var(--vh)*2.6), 19px) var(--fonte);letter-spacing:0;text-transform:uppercase;text-shadow:0 2px 0 rgba(0,0,0,.18);
+  padding:clamp(14px, calc(var(--vh)*2.4), 20px) 40px;cursor:pointer;box-shadow:0 5px 0 #0a6b38, inset 0 2px 0 rgba(255,255,255,.35);
+  transition:transform .08s ease, box-shadow .08s ease;text-decoration:none;display:block;
+  animation:pulsa 1.3s ease-in-out infinite;will-change:transform}
+.btn::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);
+  animation:brilho 2.4s ease-in-out infinite;pointer-events:none}
+.btn::before{content:"»";position:absolute;right:12px;top:50%;margin-top:-.62em;font-size:30px;line-height:1.2;opacity:.95;
+  animation:seta .9s ease-in-out infinite;pointer-events:none}
+.btn:active{animation:none;transform:translateY(3px);box-shadow:0 2px 0 #0a6b38, inset 0 2px 0 rgba(255,255,255,.35)}
+.btn[disabled]{animation:none;opacity:.6;cursor:wait}
+.btn.quieto{animation:none}
+.btn.quieto::before,.btn.quieto::after{display:none}
+@keyframes pulsa{
+  0%,100%{transform:scale(1);box-shadow:0 5px 0 #0a6b38, inset 0 2px 0 rgba(255,255,255,.35), 0 0 0 0 rgba(22,176,98,.65)}
+  50%{transform:scale(1.045);box-shadow:0 5px 0 #0a6b38, inset 0 2px 0 rgba(255,255,255,.35), 0 0 0 16px rgba(22,176,98,0)}
+}
+@keyframes brilho{0%{left:-70%}55%,100%{left:130%}}
+@keyframes seta{0%,100%{transform:translateX(0)}50%{transform:translateX(7px)}}
+.btn:focus-visible,.voltar:focus-visible,.play:focus-visible{outline:3px solid var(--ouro);outline-offset:3px}
+.compra{width:100%;display:flex;flex-direction:column;gap:12px}
+@media (prefers-reduced-motion:reduce){.btn,.btn::after,.btn::before,.play{animation:none}}
+/* Player compacto em uma linha: play à esquerda, barra e instrução à direita */
+.audio{width:100%;background:#f7f7f7;border:2px solid var(--linha);border-radius:16px;padding:clamp(8px, calc(var(--vh)*1.3), 14px) 14px;display:flex;flex-direction:row;align-items:center;gap:14px;flex:none;text-align:left}
+.audio .info{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+/* Play: mesmo degradê e um anel pulsando enquanto o áudio está parado ("toque aqui"); para quando toca */
+.play{flex:none;width:clamp(54px, calc(var(--vh)*8.5), 72px);height:clamp(54px, calc(var(--vh)*8.5), 72px);border-radius:50%;border:0;background:linear-gradient(180deg,#3ee08a 0%,#16b062 48%,#0c8a48 100%);color:#fff;font-size:clamp(22px, calc(var(--vh)*3.5), 30px);cursor:pointer;display:grid;place-items:center;
+  box-shadow:0 4px 0 #0a6b38;animation:anel 1.3s ease-out infinite}
+.play.tocando{animation:none}
+@keyframes anel{0%{box-shadow:0 4px 0 #0a6b38,0 0 0 0 rgba(22,176,98,.6)}100%{box-shadow:0 4px 0 #0a6b38,0 0 0 20px rgba(22,176,98,0)}}
+.tempo{width:100%;height:8px;background:var(--linha);border-radius:99px;overflow:hidden}
+.tempo i{display:block;height:100%;width:0;background:var(--verde)}
+.oracao{background:#fffaf0;border:2px solid #f0e2c4;border-left:6px solid var(--ouro);border-radius:12px;padding:16px;text-align:left;font-size:19px;font-weight:700;line-height:1.55;color:var(--tinta)}
+.oracao p{margin:0 0 10px}
+details{width:100%;text-align:left;flex:none}
+details[open]{margin-bottom:4px}
+summary{cursor:pointer;color:var(--tinta);font-size:clamp(15px, calc(var(--vh)*2.2), 18px);font-weight:800;text-align:center;text-decoration:underline}
+details .oracao{margin-top:10px}
+.citacao{font-weight:900;font-size:clamp(17px, calc(var(--vh)*2.7), 22px);color:var(--vinho);margin:0;border-block:3px solid var(--linha);padding:clamp(6px, calc(var(--vh)*1.2), 14px) 4px;flex:none}
+/* Oferta */
+.oferta{gap:20px}
+.bloco{width:100%;background:var(--cartao);border:2px solid var(--linha);border-radius:16px;padding:18px;text-align:left;display:flex;flex-direction:column;gap:12px}
+.bloco h3{font-size:22px;font-weight:900;margin:0;color:var(--tinta)}
+.preco{text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center}
+.preco .de{color:var(--vinho);text-decoration:line-through;font-size:19px;font-weight:800}
+.preco .por{font-size:46px;color:var(--verde);font-weight:900;line-height:1.05}
+.preco .parc{font-size:18px;font-weight:800;color:var(--tinta)}
+.escolha{width:100%;display:flex;flex-direction:column;gap:10px;text-align:left}
+.escolha p{margin:0;font-size:19px;font-weight:700}
+.bloco.garantia{flex-direction:row;gap:12px;align-items:flex-start}
+.garantia .escudo{flex:none;font-size:34px}
+.seguro{font-size:16px;font-weight:800;color:var(--tinta);text-align:center;margin:0}
+.dep{display:grid;gap:10px}
+.dep img{width:100%;border-radius:10px;border:2px solid var(--linha)}
+.faq details{border-top:2px solid var(--linha);padding:12px 0}
+.faq summary{text-align:left;color:var(--tinta);font-weight:900;font-size:19px;text-decoration:none}
+.faq p{margin:8px 0 0;font-size:18px;font-weight:600;color:var(--tinta)}
+.aviso{font-size:16px;font-weight:800;color:var(--vinho);background:var(--rosa);border-radius:10px;padding:10px 12px;margin:0}
+.rodape{font-size:14px;font-weight:600;color:var(--tinta-suave);text-align:center;margin-top:8px}
+
+/* ================= Checkout Pix (na própria página) =================
+   Público 50+: campos grandes, um passo por vez, QR Code grande e botão de copiar enorme. */
+.checkout{gap:14px;padding-bottom:24px}
+.checkout .resumo{width:100%;display:flex;gap:12px;align-items:center;background:var(--verde-claro);border:2px solid #bfe6cf;border-radius:14px;padding:12px;text-align:left}
+.checkout .resumo img{width:64px;height:auto;border-radius:6px;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.checkout .resumo b{display:block;font-size:17px;line-height:1.2}
+.checkout .resumo .valor{color:var(--verde);font-weight:900;font-size:24px}
+.form{width:100%;display:flex;flex-direction:column;gap:12px;text-align:left}
+.campo{display:flex;flex-direction:column;gap:5px}
+.campo label{font-size:16px;font-weight:800;color:var(--tinta)}
+.campo input{width:100%;font:700 20px var(--fonte);color:var(--tinta);padding:14px 14px;border:3px solid var(--linha);border-radius:14px;background:#fff;outline:none}
+.campo input:focus{border-color:var(--verde)}
+.campo input.erro{border-color:var(--vinho);background:var(--rosa)}
+.campo small{font-size:14px;font-weight:700;color:var(--tinta-suave)}
+.erro-msg{font-size:16px;font-weight:800;color:var(--vinho);margin:0}
+.pix-box{width:100%;display:flex;flex-direction:column;align-items:center;gap:12px;background:#fff;border:3px solid var(--verde);border-radius:18px;padding:16px}
+.pix-box .qr{width:min(260px,80%);height:auto;image-rendering:pixelated;border:4px solid #fff;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.pix-box .valor-grande{font-size:34px;font-weight:900;color:var(--verde);line-height:1}
+.pix-box .expira{font-size:15px;font-weight:800;color:var(--tinta-suave)}
+.pix-box .expira b{color:var(--vinho)}
+.copia{width:100%;display:flex;flex-direction:column;gap:8px}
+.copia textarea{width:100%;font:700 13px ui-monospace,Consolas,monospace;color:var(--tinta-suave);background:#f7f7f7;border:2px solid var(--linha);border-radius:10px;padding:10px;resize:none;height:74px;word-break:break-all}
+.btn.copiar.ok{background:linear-gradient(180deg,#5a5a5a,#2e2e2e);box-shadow:0 5px 0 #111}
+.passos-pix{width:100%;text-align:left;background:#fffaf0;border:2px solid #f0e2c4;border-left:6px solid var(--ouro);border-radius:12px;padding:14px 16px}
+.passos-pix h3{margin:0 0 8px;font-size:18px}
+.passos-pix ol{margin:0;padding-left:22px;font-size:17px;font-weight:700;line-height:1.5}
+.aguardando{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;color:var(--tinta)}
+.aguardando i{width:16px;height:16px;border-radius:50%;border:3px solid var(--linha);border-top-color:var(--verde);animation:gira .9s linear infinite;flex:none}
+@keyframes gira{to{transform:rotate(360deg)}}
+.sucesso{width:100%;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.sucesso .check{width:96px;height:96px;border-radius:50%;background:var(--verde);color:#fff;display:grid;place-items:center;font-size:56px;font-weight:900;box-shadow:0 8px 24px rgba(19,163,90,.35)}
+.link-simples{background:none;border:0;color:var(--tinta-suave);font:800 16px var(--fonte);text-decoration:underline;cursor:pointer;padding:6px}
