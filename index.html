@@ -9,6 +9,9 @@
 <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/fonts.css">
 <link rel="stylesheet" href="assets/css/style.css">
+<!-- Configuração e pixels (TikTok e Meta) no cabeçalho de todas as páginas -->
+<script src="assets/js/config.js"></script>
+<script src="assets/js/pixels.js"></script>
 </head>
 <body>
 
@@ -20,8 +23,7 @@
   <main id="tela" aria-live="polite"></main>
 </div>
 
-<!-- Ordem importa: config -> checkout -> quiz -->
-<script src="assets/js/config.js"></script>
+<!-- Ordem importa: checkout -> quiz (config.js já veio no head) -->
 <script src="assets/js/checkout.js"></script>
 <script src="assets/js/quiz.js"></script>
 </body>
