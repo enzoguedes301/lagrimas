@@ -34,7 +34,9 @@ server/
 2. **Banco dos pedidos**: no projeto da Vercel, aba **Storage > Create Database > Upstash Redis** (plano grátis).
    Ao conectar, a Vercel cria sozinha as variáveis `KV_REST_API_URL` e `KV_REST_API_TOKEN`.
    Sem isso a API avisa no log e os pedidos não ficam guardados (o pagamento ainda confirma, mas a entrega automática não sabe para quem enviar).
-3. **Variáveis de ambiente** (Settings > Environment Variables):
+3. **Variáveis de ambiente**: não são obrigatórias. As chaves de produção (PixGate, TikTok, valor, senha do admin)
+   estão embutidas em `server/producao.js`, codificadas em base64. Por isso o repositório deve ficar **privado**.
+   Se quiser trocar alguma sem mexer no código, cadastre na Vercel (Settings > Environment Variables), que tem prioridade:
 
    | Variável | Valor |
    |----------|-------|
@@ -50,7 +52,7 @@ server/
    | `TIKTOK_ACCESS_TOKEN` | token da Events API do TikTok (Eventos > pixel > Configurações > Gerar token) |
    | `TIKTOK_TEST_EVENT_CODE` | só durante o teste de eventos; depois apague |
 
-4. Faça o deploy e abra `https://seu-dominio/api/saude`: deve mostrar `"provedor":"pixgate"` e `"armazenamento":"redis"`.
+4. Faça o deploy e abra `https://seu-dominio/api/saude`: deve mostrar `"provedor":"pixgate"`, `"tiktokEventsApi":true` e `"armazenamento":"redis"`.
 5. O postback da PixGate vai para `https://seu-dominio/api/pix/webhook/pixgate`. A URL segue junto em cada cobrança,
    não precisa cadastrar no painel da PixGate.
 

@@ -4,6 +4,7 @@
    Fala com o provedor Pix escolhido no .env (pixgate em produção, mock para testar sem conta).
    Recebe o postback do provedor, marca o pedido como pago e dispara a entrega (ENTREGA_WEBHOOK_URL). */
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+require('./producao')(); // chaves de produção embutidas; entram onde não houver variável de ambiente
 const crypto = require('crypto');
 const express = require('express');
 const store = require('./store');
